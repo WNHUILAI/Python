@@ -110,9 +110,18 @@ dictionary = {
 df = pd.DataFrame(dictionary)
 df
 
+#累加累乘跟移動窗格都可以用dataFrame呈現
+
 #DataFram指定查詢序列
 df.loc['2018-01-02':'2018-01-05', ['c1','c2']]
-DataFram也適用以上loc語法
+df.iloc[1:4, [0, 1]]
+DataFram也適用以上loc及iloc語法
+
+#Data特有功能序列沒有的
+df['c3']->找出某欄可以不要用loc
+df.cumsum(axis=1)->axis=1表示橫的相加
+df.drop('c1',axis=1 )
+
 ##練習算簡單股票
 account=100000
 stockprice=35
@@ -130,3 +139,40 @@ stockpricenew= stockprice*1.3*buyamount
 stockvalue= stockpricenew*buyamount*1000
 
 account=account+stockvalue - stockvalue*(taxratio+feeratio)
+
+#練習畫人生曲線圖
+
+起始資金 = 30
+每月薪水 = 4.5
+每月開銷 = 1 # 不含房租
+每月房租 = 0.7
+退休年齡 = 65
+預測時段 = range(25, 90, 1)
+
+import pandas as pd
+
+# 每年淨額
+每年淨額 = pd.Series(0, index=預測時段)
+每年淨額.iloc[0] = 起始資金
+每年淨額.loc[:退休年齡] += 每月薪水 * 12
+每年淨額 -= (每月開銷 + 每月房租) * 12
+%matplotlib inline
+每年淨額.plot()
+
+#無投資資產
+無投資總資產 = 每年淨額.cumsum()
+無投資總資產.plot()
+
+#今年底的帳戶餘額 = 投資金額 * 投資年利率 + 存在帳戶裡不動的錢 + 今年淨額
+投資部位 = 0.7
+投資年利率 = 1.5 # 跟影片中不太一樣，影片中：1.05，改成 5% 來表示，比較好理解，也就是一年有5％的報酬率
+
+def money(Net, ratio, return_rate):
+    ret = [Net.iloc[0]]
+    for v in Net[1:]:
+        ret.append(ret[-1] * ratio * return_rate + ret[-1] * (1 - ratio) + v)
+    return pd.Series(ret, 預測時段)
+
+投資總資產 = money(每年淨額, 投資部位, 投資年利率)
+投資總資產.plot()
+無投資總資產.plot()
