@@ -100,3 +100,20 @@ df = df.apply(lambda s: pd.to_numeric(s, errors='coerce'))
 df.dropna(axis=1, how='all', inplace=True)
 
 df.head()
+
+
+# 紅棒的長度，1代表不漲不跌，小於一代表收盤價比較小（股價跌），大於一代表收盤價比較大（股票漲）
+#
+close_open =df[df['收盤價'] / df['開盤價']>1.05]
+close_open
+#.head(5)
+
+
+#將DataFram存csv
+df.to_csv('daily_price.csv', encoding='utf_8_sig')
+
+# 讀csv檔
+# 我們指名 index 為 證券代號並且將收盤價為空的刪除並且取前五筆資料
+df = pd.read_csv('daily_price.csv', index_col=['證券代號'])
+df=df[df['收盤價'].notnull()].head()
+df
